@@ -1,0 +1,49 @@
+name: alcipen
+description: A mobile app that connects students who need help completing assignments with fellow students offering writing/diagram services.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Core
+  cupertino_icons: ^1.0.6
+  provider: ^6.1.1
+  google_fonts: ^6.1.0
+  intl: ^0.19.0
+  flutter_svg: ^2.0.9
+  cached_network_image: ^3.3.1
+  url_launcher: ^6.2.3
+  shared_preferences: ^2.2.2
+  image_picker: ^1.1.2
+
+  # File picker – upgraded to inline-desktop implementation
+  file_picker: ^10.1.2
+
+  # Storage & notifications
+  path_provider: ^2.1.2
+  flutter_local_notifications: ^19.1.0
+
+  # Location & maps
+  geolocator: ^14.0.0
+  google_maps_flutter: 2.12.1
+
+  # Chat
+  flutter_chat_ui: ^2.0.2
+  flutter_chat_types: ^3.6.2
+  uuid: ^4.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
