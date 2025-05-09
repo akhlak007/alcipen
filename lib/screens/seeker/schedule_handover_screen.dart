@@ -23,20 +23,19 @@ class _ScheduleHandoverScreenState extends State<ScheduleHandoverScreen> {
     'Engineering Block',
     'Science Building',
   ];
-  
+
   User? _writer;
-  
+
   @override
   void dispose() {
     _locationController.dispose();
     _notesController.dispose();
     super.dispose();
   }
-  
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Get the writer from arguments, if available
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args != null && args is Map && args.containsKey('writer')) {
       _writer = args['writer'] as User;
@@ -62,7 +61,7 @@ class _ScheduleHandoverScreenState extends State<ScheduleHandoverScreen> {
         );
       },
     );
-    
+
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
@@ -79,7 +78,7 @@ class _ScheduleHandoverScreenState extends State<ScheduleHandoverScreen> {
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
               primary: AppColors.primaryBlue,
-              onPrimary: Colors.white,
+              onPrimary: Colors.black12,
               onSurface: AppColors.black,
             ),
           ),
@@ -87,7 +86,7 @@ class _ScheduleHandoverScreenState extends State<ScheduleHandoverScreen> {
         );
       },
     );
-    
+
     if (picked != null && picked != _selectedTime) {
       setState(() {
         _selectedTime = picked;
@@ -105,8 +104,7 @@ class _ScheduleHandoverScreenState extends State<ScheduleHandoverScreen> {
       );
       return;
     }
-    
-    // Show confirmation dialog
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -150,21 +148,31 @@ class _ScheduleHandoverScreenState extends State<ScheduleHandoverScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              // Handle scheduling logic here
-              Navigator.pop(context); // Close dialog
-              
-              // Show success message and navigate back
+              Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Handover scheduled successfully'),
                   backgroundColor: AppColors.success,
                 ),
               );
-              
-              Navigator.pop(context); // Go back to previous screen
+              Navigator.pop(context);
             },
             child: const Text('Confirm'),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({required IconData icon, required String label, required String value}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: AppColors.primaryBlue),
+          const SizedBox(width: 8),
+          Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold)),
+          Expanded(child: Text(value)),
         ],
       ),
     );
@@ -186,97 +194,127 @@ class _ScheduleHandoverScreenState extends State<ScheduleHandoverScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Writer info (if available)
               if (_writer != null) _buildWriterCard(),
-              
-              // Date and time selection
               const SizedBox(height: 24),
-              Text(
-                'Select Date & Time',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+              Text('Select Date & Time', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Expanded(
-                    child: _buildDatePicker(),
-                  ),
+                  Expanded(child: _buildDatePicker()),
                   const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildTimePicker(),
-                  ),
+                  Expanded(child: _buildTimePicker()),
                 ],
               ),
-              
-              // Location selection
               const SizedBox(height: 24),
-              Text(
-                'Meeting Location',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+              Text('Meeting Location', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 16),
               TextField(
                 controller: _locationController,
                 decoration: InputDecoration(
                   hintText: 'Enter meeting location',
                   prefixIcon: const Icon(Icons.location_on_outlined),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                'Suggested Locations',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.darkGrey,
-                ),
-              ),
+              Text('Suggested Locations', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.darkGrey)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: _recommendedLocations.map((location) {
-                  return GestureDetector(
-                    onTap: () {
+                  return ChoiceChip(
+                    label: Text(location),
+                    selected: _locationController.text == location,
+                    onSelected: (selected) {
                       setState(() {
                         _locationController.text = location;
                       });
                     },
-                    child: Chip(
-                      label: Text(location),
-                      backgroundColor: AppColors.offWhite,
-                    ),
                   );
                 }).toList(),
               ),
-              
-              // Additional notes
               const SizedBox(height: 24),
-              Text(
-                'Additional Notes',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+              Text('Additional Notes', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 16),
               TextField(
                 controller: _notesController,
                 decoration: InputDecoration(
-                  hintText: 'E.g., "I\'ll be wearing a red jacket" or "Meeting at the front entrance"',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  hintText: 'E.g., "Red jacket" or "Meet at front entrance"',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 maxLines: 3,
               ),
-              
-              // Schedule button
               const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _scheduleHandover,
-                child: const Text('Schedule Handover'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _scheduleHandover,
+                  child: const Text('Schedule Handover'),
+                ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDatePicker() {
+    return InkWell(
+      onTap: () => _selectDate(context),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.lightGrey),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.calendar_today, color: AppColors.primaryBlue),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Date', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 4),
+                  Text(DateFormat('MMM dd, yyyy').format(_selectedDate)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimePicker() {
+    return InkWell(
+      onTap: () => _selectTime(context),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.lightGrey),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.access_time, color: AppColors.primaryBlue),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Time', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 4),
+                  Text(_selectedTime.format(context)),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -307,49 +345,19 @@ class _ScheduleHandoverScreenState extends State<ScheduleHandoverScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Meeting with',
-                  style: TextStyle(
-                    color: AppColors.grey,
-                    fontSize: 14,
-                  ),
-                ),
+                const Text('Meeting with', style: TextStyle(color: Colors.grey, fontSize: 14)),
                 const SizedBox(height: 4),
-                Text(
-                  _writer!.name,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+                Text(_writer!.name, style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(
-                      Icons.star,
-                      color: Colors.amber,
-                      size: 16,
-                    ),
+                    const Icon(Icons.star, color: Colors.amber, size: 16),
                     const SizedBox(width: 4),
-                    Text(
-                      '${_writer!.rating}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                    Text('${_writer!.rating}', style: const TextStyle(fontWeight: FontWeight.w500)),
                     const SizedBox(width: 16),
-                    Container(
-                      width: 4,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: AppColors.darkGrey,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Text(
-                      '${_writer!.completedProjects} projects',
-                      style: TextStyle(
-                        color: AppColors.darkGrey,
-                      ),
-                    ),
+                    const CircleAvatar(radius: 2, backgroundColor: AppColors.darkGrey),
+                    const SizedBox(width: 8),
+                    Text('${_writer!.completedProjects} projects', style: const TextStyle(color: AppColors.darkGrey)),
                   ],
                 ),
               ],
@@ -358,140 +366,8 @@ class _ScheduleHandoverScreenState extends State<ScheduleHandoverScreen> {
           IconButton(
             icon: const Icon(Icons.chat_bubble_outline),
             onPressed: () {
-              AppRoutes.navigateTo(context, '/chat', arguments: {
-                'userId': _writer!.id,
-              });
+              AppRoutes.navigateTo(context, '/chat', arguments: {'userId': _writer!.id});
             },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDatePicker() {
-    return InkWell(
-      onTap: () => _selectDate(context),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.lightGrey),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.calendar_today,
-              color: AppColors.primaryBlue,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Date',
-                    style: TextStyle(
-                      color: AppColors.grey,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateFormat('MMM d, yyyy').format(_selectedDate),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTimePicker() {
-    return InkWell(
-      onTap: () => _selectTime(context),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.lightGrey),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            const Icon(
-              Icons.access_time,
-              color: AppColors.primaryBlue,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Time',
-                    style: TextStyle(
-                      color: AppColors.grey,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _selectedTime.format(context),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildInfoRow({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            icon,
-            size: 16,
-            color: AppColors.darkGrey,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: AppColors.grey,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),

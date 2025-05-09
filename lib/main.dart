@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:alcipen/config/routes.dart';
 import 'package:alcipen/config/theme.dart';
 import 'package:alcipen/services/user_provider.dart';
-import 'package:alcipen/screens/onboarding/splash_screen.dart';
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
